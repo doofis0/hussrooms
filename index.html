@@ -3,82 +3,82 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | gruf</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  <script src="TemplateData/profiler.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>hussrooms</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+      }
+      #unity-canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+      }
+    </style>
   </head>
   <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">gruf</div>
-      </div>
-    </div>
-<script src="Build/hussrooms.loader.js"></script>
-<script>
-  // Fetches a list of file parts and concatenates them into one Blob
-  async function fetchAndConcat(urls, mimeType) {
-    const buffers = [];
-    for (const url of urls) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
-      buffers.push(await res.arrayBuffer());
-    }
-    return new Blob(buffers, { type: mimeType });
-  }
+    <canvas id="unity-canvas"></canvas>
+    <script src="Build/hussrooms.loader.js"></script>
+    <script>
+      async function fetchAndConcat(urls, mimeType) {
+        const buffers = [];
+        for (const url of urls) {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+          buffers.push(await res.arrayBuffer());
+        }
+        return new Blob(buffers, { type: mimeType });
+      }
 
-  async function startGame() {
-    const dataParts = [
-      "Build/hussrooms.data.part1",
-      "Build/hussrooms.data.part2",
-      "Build/hussrooms.data.part3",
-      "Build/hussrooms.data.part4",
-      "Build/hussrooms.data.part5",
-    ];
-    const wasmParts = [
-      "Build/hussrooms.wasm.part1",
-      "Build/hussrooms.wasm.part2",
-      "Build/hussrooms.wasm.part3",
-      "Build/hussrooms.wasm.part4",
-    ];
+      async function startGame() {
+        const dataParts = [
+          "Build/hussrooms.data.unityweb.part1",
+          "Build/hussrooms.data.unityweb.part2",
+          "Build/hussrooms.data.unityweb.part3",
+          "Build/hussrooms.data.unityweb.part4",
+          "Build/hussrooms.data.unityweb.part5",
+        ];
+        const wasmParts = [
+          "Build/hussrooms.wasm.unityweb"
+        ];
 
-    const [dataBlob, wasmBlob] = await Promise.all([
-      fetchAndConcat(dataParts, "application/octet-stream"),
-      fetchAndConcat(wasmParts, "application/wasm"),
-    ]);
+        const [dataBlob, wasmBlob] = await Promise.all([
+          fetchAndConcat(dataParts, "application/octet-stream"),
+          fetchAndConcat(wasmParts, "application/wasm"),
+        ]);
 
-    const config = {
-      dataUrl: URL.createObjectURL(dataBlob),
-      frameworkUrl: "Build/hussrooms.framework.js",
-      codeUrl: URL.createObjectURL(wasmBlob),
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "YourCompanyName",   // match what's already in your file
-      productName: "hussrooms",
-      productVersion: "1.0",
-    };
+        const config = {
+          dataUrl: URL.createObjectURL(dataBlob),
+          frameworkUrl: "Build/hussrooms.framework.js.unityweb",
+          codeUrl: URL.createObjectURL(wasmBlob),
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "huss productions",
+          productName: "hussrooms",
+          productVersion: "1.0",
+          devicePixelRatio: window.devicePixelRatio,
+        };
 
-    const canvas = document.querySelector("#unity-canvas"); // match your actual canvas id
+        const canvas = document.querySelector("#unity-canvas");
 
-    createUnityInstance(canvas, config, (progress) => {
-      // optional: update a progress bar here
-    }).then((unityInstance) => {
-      console.log("Unity started");
-    }).catch((message) => {
-      alert(message);
-    });
-  }
+        function resizeCanvas() {
+          canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
+          canvas.height = window.innerHeight * (window.devicePixelRatio || 1);
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
 
-  startGame();
-</script>
+        createUnityInstance(canvas, config).catch((message) => {
+          alert(message);
+        });
+      }
+
+      startGame();
+    </script>
   </body>
 </html>
